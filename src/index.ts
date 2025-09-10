@@ -137,6 +137,7 @@ export class ElectronDevEnvironment extends DevEnvironment {
   private builder?: DestroyableViteBuilder
   private childProcess?: ChildProcess
   private server?: ViteDevServer
+  private restarting = false
 
   constructor(
       name: string,
@@ -190,6 +191,7 @@ export class ElectronDevEnvironment extends DevEnvironment {
       child.on('close', (code, signal) => {
         /* Definitely clear the child process unless reassigned */
         if (this.childProcess === child) delete this.childProcess
+        if (this.restarting) return // do not restart while restarting
 
         /* When we die because of a signal, do not restart and exit with an error */
         if (signal) {
@@ -265,11 +267,14 @@ export class ElectronDevEnvironment extends DevEnvironment {
     let reloadTimeout: NodeJS.Timeout | undefined = undefined
     this.builder = await createElectronBuilder(this.rootLogger, this.name, () => {
       clearTimeout(reloadTimeout)
-      reloadTimeout = setTimeout(() => this.startElectron().catch((error: any) => {
-        this.logger.error(`Error restarting Electron\n${error.stack || error}`, { error })
-        process.exitCode = 1
-        this.stopServer()
-      }), 500)
+      reloadTimeout = setTimeout(() => {
+        this.restarting = true
+        this.startElectron().catch((error: any) => {
+          this.logger.error(`Error restarting Electron\n${error.stack || error}`, { error })
+          process.exitCode = 1
+          this.stopServer()
+        }).finally(() => this.restarting = false)
+      }, 500)
     })
 
     /* Initialize the base environment */
@@ -427,7 +432,7 @@ const clientDefaults: EnvironmentOptions = {
     outDir: 'out/renderer',
   },
   dev: {
-    createEnvironment: (name, config, context) => {
+    createEnvironment(name, config, context) {
       return new ElectronDevEnvironment(name, config, context.ws)
     },
   },
