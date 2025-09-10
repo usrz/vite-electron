@@ -2,8 +2,8 @@
 
 > **... A word of caution!**
 >
-> This project mainly explores the new Vite environments, and while it's
-> functional, providing hot reload for both main, preload, and renderer scripts
+> This project mainly explores the new Vite environments. While it's
+> functional — providing hot reload for main, preload, and renderer scripts —
 > it might not work in all scenarios.
 >
 > Feedback, patches, and contributions are always welcome!
@@ -13,10 +13,10 @@ Vite. It exports a dev environment that launches Electron during `vite` dev,
 plus small helpers to set up "main", "preload", and "renderer" environments,
 and a wrapper to define a complete Vite config with sensible defaults.
 
-* [Super quick-start](#super-quick-start)
-* [Configuring Vite](#configuring-vite)
-* [Reference and API](./API.md)
-* [License (MIT)](./LICENSE.md)
+- [Super quick-start](#super-quick-start)
+- [Configuring Vite](#configuring-vite)
+- [Reference and API](./API.md)
+- [License (MIT)](./LICENSE.md)
 
 
 
@@ -30,15 +30,16 @@ new project, install this package, and run the `vite-electron-init` script:
 mkdir my-electron-project
 cd my-electron-project
 
-# Initialize a simple package.
-echo -e '{\n  "type":"module",\n  "main":"out/main/index.js"\n}' > package.json
-npm init
+# Initialize a simple package
+npm init -y
+# Ensure ESM and set Electron's main entry point
+npm pkg set type=module main="out/main/index.js"
 
 # Install this little package
 npm install '@usrz/vite-electron'
 
-# Copy the basic structure from our template
-npx '@usrz/vite-electron'
+# Scaffold the basic structure from our template
+npx vite-electron-init
 
 # Enjoy!
 npx vite
@@ -48,7 +49,7 @@ npx vite
 
 ## Configuring Vite
 
-Using this is as-easy as providing a default configuration in `vite.config.ts`:
+Using this is as easy as providing a default configuration in `vite.config.ts`:
 
 ```ts
 import { defineElectronConfig } from '@usrz/vite-electron'
@@ -60,17 +61,17 @@ export default defineElectronConfig({
 })
 ```
 
-The defaults for your project are configured in the following way:
+The defaults for your project are configured as follows:
 
-* the main script should be in `./src/main/index.ts`
-* the preload script should be in `./src/main/preload.ts`
-* the renderer script should be in `./src/renderer/index.ts`
-* the index file should be in `./index.html`
-* all output will be written to `./out`
+- the main script lives in `./src/main/index.ts`
+- the preload script lives in `./src/preload/index.ts`
+- the renderer script lives in `./src/renderer/index.ts`
+- the HTML entry file is `./index.html`
+- all build output is written to `./out`
 
-In order to provide hot reload of your app, the `ELECTRON_RENDERER_URL`
-environment variable is provided to the main script, so when creating a window,
-the minimal setup should be as follows:
+To enable hot reload, the `ELECTRON_RENDERER_URL` environment variable is
+provided to the main script. When creating a window, a minimal setup looks like
+this:
 
 ```ts
 const mainWindow = new BrowserWindow({

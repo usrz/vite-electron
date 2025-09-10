@@ -23,7 +23,7 @@ defineElectronConfig(config: UserConfigFn): UserConfigFn
 defineElectronConfig(config: UserConfigExport): UserConfigExport
 ```
 
-#### Defaults merged into your config:
+#### Defaults merged into your config
 
 ```js
 {
@@ -47,8 +47,12 @@ defineElectronConfig(config: UserConfigExport): UserConfigExport
   },
 
   builder: {
-    /* Build all environments by default same as running `vite build --app` */
-    buildApp(... args) {},
+    /* Build all environments sequentially (same as `vite build --app`) */
+    async buildApp(builder) {
+      for (const environment of Object.values(builder.environments)) {
+        await builder.build(environment)
+      }
+    },
   },
 }
 ```
@@ -81,7 +85,7 @@ createElectronClientEnvironment(entry?: string, outDir?: string): EnvironmentOpt
 createElectronClientEnvironment(options?: EnvironmentOptions): EnvironmentOptions
 ```
 
-#### Defaults merged into your config:
+#### Defaults merged into your config
 
 ```js
 {
@@ -134,19 +138,19 @@ createElectronMainEnvironment(entry?: string, outDir?: string): EnvironmentOptio
 createElectronMainEnvironment(options?: EnvironmentOptions): EnvironmentOptions
 ```
 
-#### Defaults merged into your config:
+#### Defaults merged into your config
 
 ```js
 {
   consumer: 'client',
   build: {
     lib: {
-      formats: [ 'es' ], /* always output EcmaScript modules */
+      formats: [ 'es' ], /* always output ECMAScript modules */
       entry: 'src/main/index', /* ... or whatever you specify as `entry` */
       fileName: (...) { ... }, /* output all files with the `js` extension */
     },
     rollupOptions: {
-      external: (...) { ... }, /* externalizes all `node_module` libraries */
+      external: (...) { ... }, /* externalizes all `node_modules` libraries */
     },
     outDir: 'out/main', /* ... or whatever you specify as `outDir` */
   },
@@ -185,19 +189,19 @@ createElectronPreloadEnvironment(entry?: string, outDir?: string): EnvironmentOp
 createElectronPreloadEnvironment(options?: EnvironmentOptions): EnvironmentOptions
 ```
 
-#### Defaults merged into your config:
+#### Defaults merged into your config
 
 ```js
 {
   consumer: 'client',
   build: {
     lib: {
-      formats: [ 'cjs' ], /* Compile as CJS, Electron will stub a "require" */
+      formats: [ 'cjs' ], /* compile as CJS; Electron will stub a "require" */
       entry: 'src/preload/index', /* ... or whatever you specify as `entry` */
       fileName: (...) { ... }, /* output all files with the `js` extension */
     },
     rollupOptions: {
-      external: (...) { ... }, /* externalizes all `node_module` libraries */
+      external: (...) { ... }, /* externalizes all `node_modules` libraries */
     },
     outDir: 'out/preload', /* ... or whatever you specify as `outDir` */
   },
