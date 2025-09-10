@@ -1,0 +1,38 @@
+{
+  "name": "@usrz/vite-electron",
+  "version": "0.0.1",
+  "description": "Electron and Vite with environments",
+  "main": "index.js",
+  "scripts": {
+    "build": "plug",
+    "coverage": "plug coverage",
+    "dev": "plug coverage -w src -w test",
+    "lint": "plug lint",
+    "test": "plug test",
+    "transpile": "plug transpile"
+  },
+  "keywords": [
+    "vite"
+  ],
+  "author": "Pier Fumagalli <pier@usrz.com>",
+  "license": "MIT",
+  "files": [
+    "*.md",
+    "dist/",
+    "src/"
+  ],
+  "dependencies": {
+    "split2": "^4.2.0"
+  },
+  "devDependencies": {
+    "@plugjs/build": "^0.6.60",
+    "@types/node": "^24.3.1",
+    "@types/split2": "^4.2.3",
+    "picocolors": "^1.1.1",
+    "rollup": "^4.50.1",
+    "vite": "^7.1.5"
+  },
+  "peerDependencies": {
+    "vite": "^7.1.5"
+  }
+}
