@@ -13,6 +13,9 @@
       "types": "./dist/index.d.ts"
     }
   },
+  "bin": {
+    "vite-electron-init": "dist/init.mjs"
+  },
   "scripts": {
     "build": "plug",
     "coverage": "plug coverage",
@@ -29,7 +32,8 @@
   "files": [
     "*.md",
     "dist/",
-    "src/"
+    "src/",
+    "resources/"
   ],
   "engines": {
     "node": "^20.19.0 || >=22.12.0"
