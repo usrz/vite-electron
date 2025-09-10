@@ -123,7 +123,7 @@ async function createElectronBuilder(
       await Promise.all(Object.values(watchers).map((watcher) => {
         watcher.removeListenersForCurrentRun()
         watcher.removeAllListeners()
-        watcher.close()
+        return watcher.close()
       }))
     },
   })
@@ -195,20 +195,20 @@ export class ElectronDevEnvironment extends DevEnvironment {
         if (signal) {
           this.logger.warn(`Electron process ${colors.dim(`(pid=${child.pid})`)} exited with signal ${signal}`)
           process.exitCode = 1
-          this.server?.close()
+          this.stopServer()
 
         /* When we die with a non-zero code, do not restart and exit with an error */
         } else if (code !== 0) {
           this.logger.warn(`Electron process ${colors.dim(`(pid=${child.pid})`)} exited with code ${code}`)
           process.exitCode = code || 1
-          this.server?.close()
+          this.stopServer()
 
         /* If we exited normally (the application was quit), and we still have a
          * server (this.close() was not yet called), then restart the server */
         } else if (this.server) {
           this.logger.info(`Electron process ${colors.dim(`(pid=${child.pid})`)} exited, goodbye...`)
           process.exitCode = 0
-          this.server?.close()
+          this.stopServer()
         }
       })
 
@@ -231,12 +231,20 @@ export class ElectronDevEnvironment extends DevEnvironment {
     })
   }
 
+  /** Stop the builder and all its watchers */
   private async stopBuilder(): Promise<void> {
     if (! this.builder) return
 
     // this.logger.info('Stopping Electron builder...')
     await this.builder.destroy()
     this.builder = undefined
+  }
+
+  /** Stop the server and log possible errors */
+  private stopServer(): void {
+    this.server?.close().catch((error) => {
+      this.logger.error(`Error closing server\n${error.stack || error}`, { error })
+    })
   }
 
   /* ===== PUBLIC =========================================================== */
@@ -260,7 +268,7 @@ export class ElectronDevEnvironment extends DevEnvironment {
       reloadTimeout = setTimeout(() => this.startElectron().catch((error: any) => {
         this.logger.error(`Error restarting Electron\n${error.stack || error}`, { error })
         process.exitCode = 1
-        this.server?.close()
+        this.stopServer()
       }), 500)
     })
 
@@ -277,7 +285,7 @@ export class ElectronDevEnvironment extends DevEnvironment {
         this.logger.error(`Error starting Electron\n${error.stack || error}`, { error: error })
         delete this.server // clear state... we won't be going on!
         process.exitCode = 1
-        server.close()
+        this.stopServer()
       })
     })
 
