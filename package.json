@@ -1,7 +1,7 @@
 {
   "name": "@usrz/vite-electron",
   "version": "0.0.1",
-  "description": "Electron and Vite with environments",
+  "description": "Vite environment for Electron applications",
   "type": "module",
   "main": "dist/index.cjs",
   "module": "dist/index.mjs",
