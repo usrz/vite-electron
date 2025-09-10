@@ -10,11 +10,23 @@ export default [
         createDefaultProgram: false,
         project: [
           './tsconfig.json',
+          './tsconfig.resources.json',
           './test/tsconfig.json',
         ],
       },
     },
   },
+
+  // ===== OVERRIDES ===========================================================
+  {
+    files: [ 'resources/*' ],
+
+    rules: {
+      'no-console': 'off',
+      'no-var': 'off',
+    },
+  },
+
 
   // ===== IGNORED FILES =======================================================
   // REMEMBER! Ignores *must* be in its own configuration, they can not coexist
