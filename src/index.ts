@@ -419,6 +419,7 @@ export function createElectronPreloadEnvironment(
 
 /** The default configuration for the client/renderer scripts */
 const clientDefaults: EnvironmentOptions = {
+  consumer: 'client',
   build: {
     rollupOptions: {
       input: 'index.html',
