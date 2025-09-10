@@ -522,11 +522,3 @@ export function defineElectronConfig(config: UserConfigExport = {}): UserConfigE
     return mergeConfig(electronDefaults, result)
   }
 }
-
-/* ========================================================================== *
- * CONFIG                                                                     *
- * ========================================================================== */
-
-export default defineElectronConfig({
-  clearScreen: false,
-})
