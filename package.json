@@ -2,7 +2,17 @@
   "name": "@usrz/vite-electron",
   "version": "0.0.1",
   "description": "Electron and Vite with environments",
-  "main": "index.js",
+  "type": "module",
+  "main": "dist/index.cjs",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.ts"
+    }
+  },
   "scripts": {
     "build": "plug",
     "coverage": "plug coverage",
