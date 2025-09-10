@@ -1,20 +1,24 @@
-import { ChildProcess, spawn } from 'node:child_process'
+import { spawn } from 'node:child_process'
+
 import colors from 'picocolors'
 import split2 from 'split2'
-
-import { RollupError, RollupWatcher } from "rollup"
 import {
-  ConfigEnv,
   createBuilder,
   createLogger,
   defineConfig,
   DevEnvironment,
+  mergeConfig,
+} from 'vite'
+
+import type { ChildProcess } from 'node:child_process'
+import type { RollupError, RollupWatcher } from 'rollup'
+import type {
+  ConfigEnv,
   EnvironmentOptions,
   FSWatcher,
   LogErrorOptions,
   Logger,
   LogOptions,
-  mergeConfig,
   ResolvedConfig,
   UserConfig,
   UserConfigExport,
@@ -23,8 +27,8 @@ import {
   UserConfigFnPromise,
   ViteBuilder,
   ViteDevServer,
-  WebSocketServer
-} from "vite"
+  WebSocketServer,
+} from 'vite'
 
 /* ========================================================================== *
  * ELECTRON ENVIRONMENT                                                       *
@@ -41,8 +45,9 @@ function createElectronLogger(config: ResolvedConfig): Logger {
   /* Wrap the root logger to always add timestamps and remove new lines */
   return {
     info: (msg: string, options?: LogOptions) => {
-      msg = msg.replace('\nwatching for file', '... watching for file')
-               .replace('\nbuild started', '... build started')
+      msg = msg
+          .replace('\nwatching for file', '... watching for file')
+          .replace('\nbuild started', '... build started')
       logger.info(msg, { ...options, timestamp: true })
     },
     warn: (msg: string, options?: LogOptions) => logger.warn(msg, { ...options, timestamp: true }),
@@ -52,7 +57,7 @@ function createElectronLogger(config: ResolvedConfig): Logger {
     clearScreen: () => void 0,
     get hasWarned() {
       return logger.hasWarned
-    }
+    },
   }
 }
 
@@ -65,9 +70,9 @@ interface DestroyableViteBuilder extends ViteBuilder {
 
 /** Create our Electron builder, building all client environments *but* renderer  */
 async function createElectronBuilder(
-  customLogger: Logger,
-  clientEnvironment: string,
-  onBuildComplete?: () => void,
+    customLogger: Logger,
+    clientEnvironment: string,
+    onBuildComplete?: () => void,
 ): Promise<DestroyableViteBuilder> {
   /* Create the builder, watching for changes */
   const builder = await createBuilder({
@@ -76,8 +81,8 @@ async function createElectronBuilder(
       watch: {
         buildDelay: 250,
         clearScreen: false,
-      }
-    }
+      },
+    },
   })
 
   /* Collect all the watchers from Rollup */
@@ -134,9 +139,9 @@ export class ElectronDevEnvironment extends DevEnvironment {
   private server?: ViteDevServer
 
   constructor(
-    name: string,
-    config: ResolvedConfig,
-    transport?: WebSocketServer,
+      name: string,
+      config: ResolvedConfig,
+      transport?: WebSocketServer,
   ) {
     const logger = createElectronLogger(config)
     super(name, { ...config, logger }, { hot: true, transport })
@@ -147,7 +152,6 @@ export class ElectronDevEnvironment extends DevEnvironment {
 
   /** Start and monitor the Electron process */
   private async startElectron(): Promise<void> {
-
     /* If we already have a child process, stop it first */
     await this.stopElectron()
 
@@ -164,15 +168,15 @@ export class ElectronDevEnvironment extends DevEnvironment {
     /* Spawn the Electron process */
     const electronPath = (await import('electron')).default as any as string
     this.childProcess = await new Promise<ChildProcess>((resolve, reject) => {
-      const child = spawn(electronPath, ['.'], {
+      const child = spawn(electronPath, [ '.' ], {
         // Ensure our variable overrides any pre-existing value
         env: { ...process.env, ELECTRON_RENDERER_URL: url },
-        stdio: ['ignore', 'pipe', 'pipe'],
+        stdio: [ 'ignore', 'pipe', 'pipe' ],
         windowsHide: true,
       })
 
       /* Pipe stdout and stderr to our logger */
-      const logger = createLogger(this.config.logLevel, { prefix: `[electron]` })
+      const logger = createLogger(this.config.logLevel, { prefix: '[electron]' })
       child.stdout.pipe(split2()).on('data', (line: string) => logger.warn(`${line}`, { timestamp: true }))
       child.stderr.pipe(split2()).on('data', (line: string) => logger.error(`${line}`, { timestamp: true }))
 
@@ -246,7 +250,7 @@ export class ElectronDevEnvironment extends DevEnvironment {
     /* Stop the previous instance's Electron process and reassign builder */
     if (options?.previousInstance instanceof ElectronDevEnvironment) {
       await options.previousInstance.stopElectron() // stop *electron* only
-      await options.previousInstance.stopBuilder()  // stop *builder* only
+      await options.previousInstance.stopBuilder() // stop *builder* only
     }
 
     /* Recreate a new builder associated with this environment */
@@ -312,9 +316,9 @@ const libDefaults: EnvironmentOptions = {
         if (id.startsWith('/')) return false // do not externalize absolute paths
         if (id.startsWith('.')) return false // do not externalize relative paths
         return true // any other module is external
-      }
+      },
     },
-  }
+  },
 }
 
 /* ===== MAIN ENVIRONMENT =================================================== */
@@ -323,7 +327,7 @@ const libDefaults: EnvironmentOptions = {
 const mainDefaults: EnvironmentOptions = mergeConfig(libDefaults, {
   build: {
     lib: {
-      formats: ['es'],
+      formats: [ 'es' ],
       entry: 'src/main/index',
     },
     outDir: 'out/main',
@@ -349,8 +353,8 @@ export function createElectronMainEnvironment(options?: EnvironmentOptions): Env
 
 /* Overloaded implementation */
 export function createElectronMainEnvironment(
-  entryOrOptions: string | EnvironmentOptions = 'src/main/index',
-  outDir: string = 'out/main',
+    entryOrOptions: string | EnvironmentOptions = 'src/main/index',
+    outDir: string = 'out/main',
 ): EnvironmentOptions {
   return mergeConfig(mainDefaults, typeof entryOrOptions === 'string' ? {
     build: {
@@ -366,7 +370,7 @@ export function createElectronMainEnvironment(
 const preloadDefaults: EnvironmentOptions = mergeConfig(libDefaults, {
   build: {
     lib: {
-      formats: ['cjs'],
+      formats: [ 'cjs' ],
       entry: 'src/preload/index',
     },
     outDir: 'out/preload',
@@ -392,8 +396,8 @@ export function createElectronPreloadEnvironment(options?: EnvironmentOptions): 
 
 /* Overloaded implementation */
 export function createElectronPreloadEnvironment(
-  entryOrOptions: string | EnvironmentOptions = 'src/preload/index',
-  outDir: string = 'out/preload',
+    entryOrOptions: string | EnvironmentOptions = 'src/preload/index',
+    outDir: string = 'out/preload',
 ): EnvironmentOptions {
   return mergeConfig(preloadDefaults, typeof entryOrOptions === 'string' ? {
     build: {
@@ -416,8 +420,8 @@ const clientDefaults: EnvironmentOptions = {
   dev: {
     createEnvironment: (name, config, context) => {
       return new ElectronDevEnvironment(name, config, context.ws)
-    }
-  }
+    },
+  },
 }
 
 /**
@@ -439,8 +443,8 @@ export function createElectronClientEnvironment(options?: EnvironmentOptions): E
 
 /* Overloaded implementation */
 export function createElectronClientEnvironment(
-  entryOrOptions: string | EnvironmentOptions = 'index.html',
-  outDir: string = 'out/renderer',
+    entryOrOptions: string | EnvironmentOptions = 'index.html',
+    outDir: string = 'out/renderer',
 ): EnvironmentOptions {
   return mergeConfig(clientDefaults, typeof entryOrOptions === 'string' ? {
     build: {
@@ -475,22 +479,22 @@ const electronDefaults: UserConfig = {
       for (const environment of Object.values(builder.environments)) {
         await builder.build(environment)
       }
-    }
-  }
+    },
+  },
 }
 
 /** Define the Vite configuration for Electron, using opinionated defaults */
-export function defineElectronConfig(config: UserConfig): UserConfig;
+export function defineElectronConfig(config: UserConfig): UserConfig
 /** Define the Vite configuration for Electron, using opinionated defaults */
-export function defineElectronConfig(config: Promise<UserConfig>): Promise<UserConfig>;
+export function defineElectronConfig(config: Promise<UserConfig>): Promise<UserConfig>
 /** Define the Vite configuration for Electron, using opinionated defaults */
-export function defineElectronConfig(config: UserConfigFnObject): UserConfigFnObject;
+export function defineElectronConfig(config: UserConfigFnObject): UserConfigFnObject
 /** Define the Vite configuration for Electron, using opinionated defaults */
-export function defineElectronConfig(config: UserConfigFnPromise): UserConfigFnPromise;
+export function defineElectronConfig(config: UserConfigFnPromise): UserConfigFnPromise
 /** Define the Vite configuration for Electron, using opinionated defaults */
-export function defineElectronConfig(config: UserConfigFn): UserConfigFn;
+export function defineElectronConfig(config: UserConfigFn): UserConfigFn
 /** Define the Vite configuration for Electron, using opinionated defaults */
-export function defineElectronConfig(config: UserConfigExport): UserConfigExport;
+export function defineElectronConfig(config: UserConfigExport): UserConfigExport
 
 /* Overloaded implementation */
 export function defineElectronConfig(config: UserConfigExport = {}): UserConfigExport {
