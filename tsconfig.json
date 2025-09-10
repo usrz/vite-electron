@@ -1,13 +1,12 @@
 {
   "compilerOptions": {
-    "lib": [ "esnext" ],
-    "target": "esnext",
     "module": "esnext",
+    "target": "esnext",
     "moduleResolution": "bundler",
-    "types": [ ],
-    "esModuleInterop": true,
+    "lib": [ "esnext" ],
+    "types": [ "node" ],
 
-    "noEmit": true,
+    "esModuleInterop": true,
 
     "strict": true,
     "noImplicitReturns": true,
@@ -15,6 +14,8 @@
     "noUnusedParameters": true,
     "noUncheckedIndexedAccess": true,
     "verbatimModuleSyntax": true,
+
+    "noEmit": true,
   },
   "include": [
     "./build.ts",
