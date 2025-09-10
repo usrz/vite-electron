@@ -28,13 +28,13 @@
     "@plugjs/build": "^0.6.60",
     "@types/node": "^24.3.1",
     "@types/split2": "^4.2.3",
-    "electron": "38.0.0",
+    "electron": "^38.0.0",
     "picocolors": "^1.1.1",
     "rollup": "^4.50.1",
     "vite": "^7.1.5"
   },
   "peerDependencies": {
-    "electron": "^38.0.0",
-    "vite": "^7.1.5"
+    "electron": ">=28",
+    "vite": ">=7"
   }
 }
