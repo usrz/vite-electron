@@ -166,7 +166,7 @@ export class ElectronDevEnvironment extends DevEnvironment {
     const url = new URL(serverPath || '', serverUrl).href
 
     /* Spawn the Electron process */
-    const electronPath = (await import('electron')).default as any as string
+    const { default: electronPath } = await import('electron' as string)
     this.childProcess = await new Promise<ChildProcess>((resolve, reject) => {
       const child = spawn(electronPath, [ '.' ], {
         // Ensure our variable overrides any pre-existing value
